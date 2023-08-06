@@ -17,22 +17,27 @@
 - 支持持续集成：前端单元测试也是持续集成流程中的一部分，可以被集成到自动构建和部署流程中，实现快速反馈和持续质量保证。
 
 ### 常见的前端单元测试框架及优缺点
+
 1. Jest：
+
    - 简介：Jest 是由 Facebook 开发的一个功能强大且易于使用的 JavaScript 测试框架。它集成了断言库、模拟和打桩功能，并提供了特定于 React、Vue 等前端框架的支持。
    - 优点：简单易用，内置了强大的功能（如快照测试、异步测试），提供了完整的测试环境，并且速度较快。
    - 缺点：对于复杂的配置和自定义需求可能会不够灵活。
 
 2. Mocha：
+
    - 简介：Mocha 是一个灵活且可扩展的 JavaScript 测试框架，适用于浏览器和服务器环境。它不包含断言库，但可以与 Chai、Should.js 或 Expect.js 等断言库结合使用。
    - 优点：灵活，支持多种断言库和测试报告插件，提供了丰富的扩展能力。
    - 缺点：需要用户根据自己的需求进行配置和选择断言库。
 
 3. Jasmine：
+
    - 简介：Jasmine 是一个功能强大的行为驱动的 JavaScript 测试框架，适用于前端和后端。它包含了内置的断言和测试运行环境。
    - 优点：易读易写，提供了完整的测试环境和语法，支持多种前端框架的集成。
    - 缺点：性能相对较慢，适合小型项目或简单的测试场景。
 
 4. Enzyme：
+
    - 简介：Enzyme 是一个专为 React 应用编写测试的 JavaScript 测试工具。它提供了一组实用的 API，用于渲染、模拟事件和断言 React 组件的输出结果。
    - 优点：专注于 React 组件的测试，提供了易用的 API，并与其他断言库（如 Chai 和 Jest）兼容。
    - 缺点：对于非 React 应用或不纯粹的 JavaScript 函数测试的支持相对较弱。
@@ -45,6 +50,7 @@
 ## 基本原则和流程
 
 ### 基本原则
+
 1. 独立性：每个单元测试应该是独立的，即每个测试用例都可以独立执行，并不依赖其他测试用例或外部环境。这样可以确保测试结果的准确性和可重复性，同时降低测试之间相互影响的风险。
 
 2. 可重复性：每次运行单元测试，结果应该是一致的。通过确定性测试数据和可控的测试环境，保证测试的可重复性，即使测试在不同的环境或不同的时间运行，也能够得到相同的结果。
@@ -77,4 +83,128 @@
 
 9. 持续集成：将单元测试集成到持续集成流程中，使它们自动执行。每次代码提交或构建过程中都运行单元测试，确保代码的稳定性和质量。
 
-### 框架选择
+## 基本用法
+
+### 匹配器
+
+```javascript
+test("two plus two is four", () => {
+  expect(2 + 2).toBe(4);
+});
+```
+
+- `toBe(value)`：用于检查结果是否等于预期值。
+- `toEqual(value)`：用于递归检查对象或数组的值是否相等。
+- `toMatch(regexp)`：用于检查字符串是否与正则表达式匹配。
+- `toHaveLength(length)`：用于检查数组或字符串的长度是否等于预期长度。
+- `toContain(item)`：用于检查数组或可迭代对象是否包含特定项。
+- `toBeNull()`：用于检查结果是否为 null。
+- `toBeTruthy()`：用于检查结果是否为真值。
+- `toBeFalsy()`：用于检查结果是否为假值。
+- `toThrow(error)`：用于检查函数是否抛出特定的错误。
+- 等等...[更多文档](<(https://jestjs.io/zh-Hans/docs/expect)>)
+
+### 异步代码
+
+1. 回调函数：您可以使用回调函数来测试异步代码的结果。对于使用回调函数的异步操作，可以通过在测试函数中使用`done`参数来告知 Jest 等待测试完成。例如：
+
+```javascript
+test("异步函数使用回调函数", (done) => {
+  fetchData((data) => {
+    expect(data).toEqual("expected data");
+    done();
+  });
+});
+```
+
+2. Promises：如果您的异步操作返回一个 Promise，您可以使用`.then`和`.catch`方法来处理结果和错误。在 Jest 中，您可以使用`.resolves`和`.rejects`匹配器来测试 Promise 的解析和拒绝。例如：
+
+```javascript
+test("异步函数返回Promise", () => {
+  return expect(fetchData()).resolves.toEqual("expected data");
+});
+```
+
+3. async/await：使用 async/await 语法可以使异步代码更加直观和易读。在测试函数前面添加`async`关键字，然后使用`await`关键字等待异步操作的结果。例如：
+
+```javascript
+test("异步函数使用async/await", async () => {
+  const data = await fetchData();
+  expect(data).toEqual("expected data");
+});
+```
+
+### 模拟函数
+
+1. 创建模拟函数
+
+   - 使用`jest.fn()`来创建一个模拟函数，可以将其赋值给一个变量以供后续使用。
+
+2. 模拟函数的行为
+
+   - 设置返回值：可以使用`.mockReturnValue(value)`方法来设置模拟函数的返回值。
+   - 设置抛出异常：可以使用`.mockRejectedValue(error)`方法来设置模拟函数在调用时抛出的异常。
+   - 设置异步返回值：对于异步函数，可以使用`.mockResolvedValue(value)`或`.mockRejectedValue(error)`来设置模拟函数的异步返回值。
+
+3. 断言模拟函数的调用
+
+   - 调用次数：使用`.toHaveBeenCalledTimes(number)`断言模拟函数被调用的次数。
+   - 参数：使用`.toHaveBeenCalledWith(arg1, arg2, ...)`断言模拟函数的参数列表。
+   - 顺序：使用`.toHaveBeenNthCalledWith(callNumber, arg1, arg2, ...)`断言模拟函数的具体调用顺序和参数。
+
+4. 清除模拟函数的状态
+
+   - 重置模拟函数：使用`.mockReset()`方法可以重置模拟函数的状态，清除之前的所有调用信息。
+   - 恢复模拟函数：使用`.mockRestore()`方法可以还原一个被模拟的函数为原始的实现。
+
+5. 示例代码
+
+```javascript
+// 模拟一个函数
+const fetchData = jest.fn();
+
+// 设置模拟函数的返回值
+fetchData.mockReturnValue({ name: "John", age: 30 });
+
+// 断言模拟函数被调用一次
+expect(fetchData).toHaveBeenCalledTimes(1);
+
+// 断言模拟函数的参数
+expect(fetchData).toHaveBeenCalledWith("https://api.example.com");
+
+// 清除模拟函数的状态
+fetchData.mockReset();
+
+// 还原模拟函数
+fetchData.mockRestore();
+```
+
+### 快照测试
+
+Jest 快照测试是一种测试方法，用于验证代码输出的快照是否与预期一致。快照是一种当前代码输出的序列化表示，它是代码渲染的结果或数据结构的静态表示。在快照测试中，首次运行测试时，Jest 会将代码的快照保存下来，然后在后续运行测试时，会将当前渲染的快照与之前保存的快照进行对比验证，如果两者不一致，则会产生测试失败。
+
+以下是使用 Jest 进行快照测试的基本步骤：
+
+1. 创建快照测试案例文件：通常，每个被测试的组件或函数都应该有一个对应的快照测试案例文件。
+
+2. 渲染代码并生成快照：在测试案例文件中，首先需要渲染被测试的组件或调用被测试的函数，并使用`.toMatchSnapshot()`方法生成当前代码的快照。
+
+```javascript
+import React from "react";
+import renderer from "react-test-renderer";
+import MyComponent from "../MyComponent";
+
+test("MyComponent renders correctly", () => {
+  const component = renderer.create(<MyComponent />);
+  const tree = component.toJSON();
+  expect(tree).toMatchSnapshot();
+});
+```
+
+3. 执行快照测试：执行快照测试时，Jest 会将当前执行的快照与之前保存的快照进行比对。如果两者一致，则测试通过。如果两者不一致，则测试失败，Jest 会显示差异信息，并提供更新快照的选项。
+
+4. 更新快照（可选）：如果代码有意的变更导致测试失败，可以选择更新快照。在测试失败时，Jest 会提供一个选项来更新快照文件，如果确定改动是正确的，可以选择更新快照文件，以便将新的快照作为标准。
+
+快照测试可以用来验证组件的渲染结果、数据结构、HTML 标记等。它可以快速捕获 UI 变化和意外的更改，并及时提醒开发者进行检查和确认。
+
+需要注意的是，快照测试并不适用于动态变化的场景，例如包含时间戳、随机数或浏览器相关信息的组件。在这种情况下，可以通过 mock 掉这些变化的部分，或者使用`.toMatchInlineSnapshot()`方法在测试用例中直接指定快照的预期值。
