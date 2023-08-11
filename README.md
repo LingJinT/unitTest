@@ -208,3 +208,88 @@ test("MyComponent renders correctly", () => {
 快照测试可以用来验证组件的渲染结果、数据结构、HTML 标记等。它可以快速捕获 UI 变化和意外的更改，并及时提醒开发者进行检查和确认。
 
 需要注意的是，快照测试并不适用于动态变化的场景，例如包含时间戳、随机数或浏览器相关信息的组件。在这种情况下，可以通过 mock 掉这些变化的部分，或者使用`.toMatchInlineSnapshot()`方法在测试用例中直接指定快照的预期值。
+
+## 工程化实践
+
+### 项目结构最佳实践
+
+1. **按功能模块组织测试文件**：将相关的测试文件放在同一个目录下，可以按照功能模块或组件来组织。例如，如果你有一个`components`目录，那么你可以在`components`目录下创建一个`__tests__`目录，用于存放所有组件的测试文件。
+
+2. **测试文件命名规则**：通常，测试文件的命名应与被测试的源文件保持一致，并添加`.test.js`或`.spec.js`后缀。例如，如果源文件名为`myComponent.js`，那么对应的测试文件名应为`myComponent.test.js`或`myComponent.spec.js`。
+
+3. **使用`__mocks__`目录存放模拟文件**：Jest 允许我们创建一个名为`__mocks__`的目录，用于存放模拟文件。当我们在测试文件中调用`jest.mock('moduleName')`时，Jest 会自动查找`__mocks__`目录下的同名文件作为模块的模拟实现。
+
+4. **集中管理 Jest 配置**：可以在项目的根目录下创建一个`jest.config.js`文件，用于集中管理 Jest 的配置。这样可以方便地修改和查看所有的 Jest 配置。
+
+5. **使用`setupTests.js`文件进行测试环境的设置**：如果你需要在所有测试运行前进行一些设置，可以在`src`目录下创建一个`setupTests.js`文件。在这个文件中，你可以进行一些全局的设置，如全局变量的设置、模拟函数的实现等。
+
+6. **使用`__snapshots__`目录存放快照文件**：当我们使用 Jest 的快照测试功能时，Jest 会自动在测试文件所在的目录下创建一个`__snapshots__`目录，用于存放生成的快照文件。
+
+### 示例工程
+
+1. [started](https://github.com/LingJinT/jest/tree/main/examples/getting-started)
+2. [async](https://github.com/LingJinT/jest/tree/main/examples/async)
+3. [snapshot](https://github.com/LingJinT/jest/tree/main/examples/snapshot)
+4. [react](https://github.com/LingJinT/jest/tree/main/examples/react)
+5. ...[more](https://github.com/LingJinT/jest/tree/main/examples)
+
+## 测试覆盖率和持续集成
+
+### 测试覆盖率
+
+1. **配置 Jest**：在你的`jest.config.js`文件中，添加`collectCoverage`选项并设置为`true`。这将告诉 Jest 在运行测试时收集代码覆盖率信息。
+
+```javascript
+module.exports = {
+  collectCoverage: true,
+};
+```
+
+你还可以通过`collectCoverageFrom`选项来指定需要收集覆盖率信息的文件：
+
+```javascript
+module.exports = {
+  collectCoverage: true,
+  collectCoverageFrom: ["src/**/*.{js,jsx}"], // 只收集src目录下的.js和.jsx文件的覆盖率信息
+};
+```
+
+2. **运行测试**：运行你的测试脚本，Jest 将自动收集代码覆盖率信息，并在测试完成后输出一个覆盖率报告。
+
+```bash
+npm run test
+```
+
+3. **查看覆盖率报告**：Jest 默认会在控制台输出一个文本格式的覆盖率报告。你也可以在`coverage`目录下找到更详细的 HTML 格式的覆盖率报告，只需在浏览器中打开`coverage/lcov-report/index.html`文件即可。
+
+### 持续集成
+
+在持续集成中，每次开发人员提交代码时，都会自动触发构建、测试和部署流程，以便尽早发现和解决问题，确保代码质量和稳定性。
+
+要在项目中实现 Jest 的持续集成，可以遵循以下步骤：
+
+1. **设置版本控制系统（例如 Git）：** 将你的项目代码托管在一个版本控制系统中，例如 Git。这将使你能够跟踪代码更改并协作开发。
+
+2. **选择持续集成平台：** 选择一个持续集成平台，例如 Travis CI、Jenkins、CircleCI、GitHub Actions 等。这些平台提供了自动化构建、测试和部署的功能。
+
+3. **配置持续集成流程：** 在所选的持续集成平台上，配置一个针对你的项目的持续集成流程。通常，这涉及到以下几个步骤：
+
+   - **触发器设置：** 配置触发器，使每次代码提交到版本控制库时都会触发持续集成流程。
+
+   - **环境设置：** 配置构建和测试所需的运行时环境，包括 Node.js 环境和依赖安装。
+
+   - **构建步骤：** 在持续集成流程中添加构建步骤，例如安装项目依赖、运行测试等。
+
+   - **测试命令：** 使用 Jest 提供的命令来运行你的测试套件。通常是类似于 `npm test` 或 `yarn test` 的命令。
+
+   - **测试报告：** 配置持续集成平台以生成和展示测试报告，以便开发人员查看测试结果和覆盖率等信息。
+
+4. **提交代码：** 将你的代码提交到版本控制系统中。这将触发持续集成平台自动运行构建和测试流程。
+
+5. **监视持续集成结果：** 在持续集成平台上监视构建和测试的结果。如果有失败的测试，你会收到通知，并可以查看详细的错误信息。
+
+6. **修复问题：** 如果测试失败，查找并修复代码中的问题。然后再次提交代码，持续集成平台将重新运行构建和测试流程。
+
+7. **部署（可选）：** 如果所有测试通过，你可以配置持续集成平台以自动部署代码到生产环境或其他目标环境中。
+
+需要注意的是，持续集成是一个广泛的主题，具体的配置和步骤可能因平台和项目而异。需要根据你的项目需求和所选的持续集成平台进行适当的配置。
